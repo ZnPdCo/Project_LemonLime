@@ -40,7 +40,7 @@ sudo apt install bubblewrap
 
 == 测评时使用更多栈空间
 
-Windows 平台下可以在 `g++` 编译时添加 `-Wl,--stack=2147483647` 命令来开启约 2048 MB 栈空间。
+Windows 平台下可以在 `g++` 编译时添加 `-Wl,--stack=2147483647` 命令来开启约 2048 MiB 栈空间。
 
 Linux 平台下的栈空间限制和题目的内存限制相同。
 
