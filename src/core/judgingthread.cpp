@@ -924,7 +924,7 @@ void JudgingThread::runProgram() {
 	if (memoryLimit != -1) {
 		GetProcessMemoryInfo(pi.hProcess, (PROCESS_MEMORY_COUNTERS *)&memoryInfo, sizeof(memoryInfo));
 
-		if (qMax(memoryInfo.PrivateUsage, memoryInfo.PeakWorkingSetSize) > memoryLimit * 1024 * 1024) {
+		if (qMax(memoryInfo.PrivateUsage, memoryInfo.PeakWorkingSetSize) > 1ll * memoryLimit * 1024 * 1024) {
 			TerminateProcess(pi.hProcess, 0);
 
 			score = 0;
