@@ -85,7 +85,7 @@ void JudgingDialog::judgeAll() {
 }
 
 void JudgingDialog::singleCaseFinished(QString contestantName, int progress, int x, int y, int result,
-                                       int scoreGot, int timeUsed, int memoryUsed) {
+                                       int scoreGot, int timeUsed, long long memoryUsed) {
 	bool isOnMaxValue =
 	    ui->logViewer->verticalScrollBar()->value() == ui->logViewer->verticalScrollBar()->maximum();
 	QTextBlockFormat blockFormat;
