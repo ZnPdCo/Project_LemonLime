@@ -36,7 +36,9 @@ auto Contestant::getScore(int index) const -> const QList<QList<int>> & { return
 
 auto Contestant::getTimeUsed(int index) const -> const QList<QList<int>> & { return timeUsed[index]; }
 
-auto Contestant::getMemoryUsed(int index) const -> const QList<QList<long long>> & { return memoryUsed[index]; }
+auto Contestant::getMemoryUsed(int index) const -> const QList<QList<long long>> & {
+	return memoryUsed[index];
+}
 
 auto Contestant::getJudingTime() const -> QDateTime { return judgingTime; }
 
