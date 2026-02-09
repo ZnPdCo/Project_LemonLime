@@ -361,7 +361,7 @@ int TaskJudger::judge() {
 
 	for (int i = 0; i < task->getTestCaseList().size(); i++) {
 		timeUsed.append(QList<int>());
-		memoryUsed.append(QList<long long>());
+		memoryUsed.append(QList<int64_t>());
 		score.append(QList<int>());
 		result.append(QList<ResultState>());
 		overallStatus.append(maxDependValue);

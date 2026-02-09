@@ -99,7 +99,7 @@ void JudgingThread::setInterpreterAsWatcher(bool use) { interpreterAsWatcher = u
 
 auto JudgingThread::getTimeUsed() const -> int { return timeUsed; }
 
-auto JudgingThread::getMemoryUsed() const -> long long { return memoryUsed; }
+auto JudgingThread::getMemoryUsed() const -> int64_t { return memoryUsed; }
 
 auto JudgingThread::getScore() const -> int { return score; }
 
