@@ -163,8 +163,7 @@ QJsonObject ExportUtil::buildExportJson(Contest *contest) {
 			    taskList[j]->getTaskType() == Task::Interaction ||
 			    taskList[j]->getTaskType() == Task::Communication ||
 			    taskList[j]->getTaskType() == Task::CommunicationExec) {
-				if (contestant->getCheckJudged(j) &&
-				    contestant->getCompileState(j) == CompileSuccessfully) {
+				if (contestant->getCheckJudged(j) && contestant->getCompileState(j) == CompileSuccessfully) {
 					tObj["file"] = contestant->getSourceFile(j);
 				}
 			}
@@ -243,7 +242,7 @@ QJsonObject ExportUtil::buildExportJson(Contest *contest) {
 							dObj["full_score"] = 0;
 						}
 
-						if (!message[jj][k].isEmpty()) {
+						if (! message[jj][k].isEmpty()) {
 							dObj["info"] = message[jj][k];
 						}
 
@@ -268,7 +267,7 @@ QJsonObject ExportUtil::buildExportJson(Contest *contest) {
 void ExportUtil::exportHtml(QWidget *widget, Contest *contest, const QString &fileName) {
 	QFile file(fileName);
 
-	if (!file.open(QFile::WriteOnly)) {
+	if (! file.open(QFile::WriteOnly)) {
 		QMessageBox::warning(widget, tr("LemonLime"),
 		                     tr("Cannot open file %1").arg(QFileInfo(file).fileName()), QMessageBox::Ok);
 		return;
@@ -279,7 +278,7 @@ void ExportUtil::exportHtml(QWidget *widget, Contest *contest, const QString &fi
 	// Read template from Qt resource
 	QFile templateFile(":/export/export_template.html");
 
-	if (!templateFile.open(QFile::ReadOnly | QFile::Text)) {
+	if (! templateFile.open(QFile::ReadOnly | QFile::Text)) {
 		QApplication::restoreOverrideCursor();
 		QMessageBox::warning(widget, tr("LemonLime"), tr("Cannot read export template"), QMessageBox::Ok);
 		return;
@@ -309,7 +308,7 @@ void ExportUtil::exportHtml(QWidget *widget, Contest *contest, const QString &fi
 void ExportUtil::exportCsv(QWidget *widget, Contest *contest, const QString &fileName) {
 	QFile file(fileName);
 
-	if (!file.open(QFile::WriteOnly)) {
+	if (! file.open(QFile::WriteOnly)) {
 		QMessageBox::warning(widget, tr("LemonLime"),
 		                     tr("Cannot open file %1").arg(QFileInfo(file).fileName()), QMessageBox::Ok);
 		return;
