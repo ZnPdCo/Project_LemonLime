@@ -279,8 +279,7 @@ auto TaskJudger::traditionalTaskPrepare() -> bool {
 					compilerProcess.kill();
 					compilerProcess.waitForFinished(3000);
 					compileState = CompileTimeLimitExceeded;
-					LOG("traditionalTaskPrepare: compile TIMEOUT for "
-					    << contestantName.toStdString());
+					LOG("traditionalTaskPrepare: compile TIMEOUT for", contestantName);
 				} else if (compilerProcess.exitCode() != 0) {
 					compileState = CompileError;
 					compileMessage =
@@ -324,9 +323,8 @@ auto TaskJudger::traditionalTaskPrepare() -> bool {
 	}
 
 	if (compileState != CompileSuccessfully) {
-		LOG("traditionalTaskPrepare FAILED: compileState=" << static_cast<int>(compileState)
-		                                                    << " contestant=" << contestant->getContestantName().toStdString()
-		                                                    << " task=" << task->getProblemTitle().toStdString());
+		LOG("traditionalTaskPrepare FAILED: compileState=", static_cast<int>(compileState),
+		    "contestant=", contestant->getContestantName(), "task=", task->getProblemTitle());
 		emit compileError(task->getTotalTimeLimit(), static_cast<int>(compileState));
 		return false;
 	}
@@ -338,11 +336,9 @@ void TaskJudger::judgeIt() {
 	qDebug() << "Start Judging";
 	emit judgingStarted(task->getProblemTitle());
 	int judgeResult = judge();
-	LOG("judgeIt: contestant=" << contestant->getContestantName().toStdString()
-	                            << " task=" << task->getProblemTitle().toStdString()
-	                            << " judge()=" << judgeResult
-	                            << " compileState=" << static_cast<int>(compileState)
-	                            << " result.size()=" << result.size());
+	LOG("judgeIt: contestant=", contestant->getContestantName(), "task=", task->getProblemTitle(),
+	    "judge()=", judgeResult, "compileState=", static_cast<int>(compileState),
+	    "result.size()=", result.size());
 	if (judgeResult) {
 		contestant->setCheckJudged(taskId, true);
 		contestant->setCompileMessage(taskId, compileMessage);
@@ -368,11 +364,10 @@ int TaskJudger::judge() {
 
 	if (task->getTaskType() != Task::AnswersOnly)
 		if (! traditionalTaskPrepare()) {
-			LOG("judge: traditionalTaskPrepare FAILED for contestant="
-			    << contestant->getContestantName().toStdString()
-			    << " task=" << task->getProblemTitle().toStdString()
-			    << " compileState=" << static_cast<int>(compileState)
-			    << " result.size()=" << result.size());
+			LOG("judge: traditionalTaskPrepare FAILED for contestant=",
+			    contestant->getContestantName(), "task=", task->getProblemTitle(),
+			    "compileState=", static_cast<int>(compileState),
+			    "result.size()=", result.size());
 			return 1;
 		}
 
