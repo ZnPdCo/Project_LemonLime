@@ -364,10 +364,26 @@ int TaskJudger::judge() {
 
 	if (task->getTaskType() != Task::AnswersOnly)
 		if (! traditionalTaskPrepare()) {
-			LOG("judge: traditionalTaskPrepare FAILED for contestant=",
-			    contestant->getContestantName(), "task=", task->getProblemTitle(),
-			    "compileState=", static_cast<int>(compileState),
-			    "result.size()=", result.size());
+			// Fill result arrays so downstream code sees consistent state
+			for (int i = 0; i < task->getTestCaseList().size(); i++) {
+				timeUsed.append(QList<int>());
+				memoryUsed.append(QList<qint64>());
+				score.append(QList<int>());
+				result.append(QList<ResultState>());
+				overallStatus.append(maxDependValue);
+				message.append(QStringList());
+				inputFiles.append(QStringList());
+				testCaseScore.append(task->getTestCase(i)->getFullScore());
+
+				for (int j = 0; j < task->getTestCase(i)->getInputFiles().size(); j++) {
+					timeUsed[i].append(-1);
+					memoryUsed[i].append(-1);
+					score[i].append(0);
+					result[i].append(Skipped);
+					message[i].append("");
+					inputFiles[i].append("");
+				}
+			}
 			return 1;
 		}
 

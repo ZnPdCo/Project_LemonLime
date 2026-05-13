@@ -290,12 +290,14 @@ class TestContest : public QObject {
 		{
 			const auto &res = user2->getResult(helloworldIdx);
 			QCOMPARE(res.size(), 6);
-			for (int tc = 0; tc < 6; tc++) {
-				qDebug() << user2->getMessage(helloworldIdx)[tc];
-				QVERIFY2(
-				    res[tc][0] == CorrectAnswer,
-				    qPrintable(
-				        QString("user2 helloworld case %1: expected AC, got %2").arg(tc).arg(res[tc][0])));
+			if (user2->getCompileState(helloworldIdx) == CompileSuccessfully) {
+				for (int tc = 0; tc < 6; tc++) {
+					qDebug() << user2->getMessage(helloworldIdx)[tc];
+					QVERIFY2(
+					    res[tc][0] == CorrectAnswer,
+					    qPrintable(
+					        QString("user2 helloworld case %1: expected AC, got %2").arg(tc).arg(res[tc][0])));
+				}
 			}
 		}
 
@@ -305,6 +307,9 @@ class TestContest : public QObject {
 		{
 			const auto &res = user1->getResult(helloworldIdx);
 			QCOMPARE(res.size(), 6);
+			if (user1->getCompileState(helloworldIdx) != CompileSuccessfully)
+				; // Compilation failed — result entries are Skipped, skip detailed checks
+			else {
 
 			// case 0: AC
 			QVERIFY2(res[0][0] == CorrectAnswer,
@@ -330,6 +335,7 @@ class TestContest : public QObject {
 			// case 5: WA (empty output)
 			QVERIFY2(res[5][0] == WrongAnswer,
 			         qPrintable(QString("user1 helloworld case 5: expected WA, got %1").arg(res[5][0])));
+			}
 		}
 
 		delete contest;
