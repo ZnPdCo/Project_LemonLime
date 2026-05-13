@@ -85,7 +85,12 @@ jobs:
         run: |
           gpp=$(which g++ 2>/dev/null || true)
           if [ -n "$gpp" ]; then
-            echo "int main(){return 0;}" | g++ -x c++ -O2 -o "$TEMP/_warmup.exe" -
+            cat <<'EOF' | g++ -x c++ -O2 -o "$TEMP/_warmup.exe" -
+          #include <cstring>
+          #include <iostream>
+          #include <vector>
+          int main() { std::vector<int> v; std::cout << v.size(); return 0; }
+          EOF
             echo "g++ warmup done: $gpp"
           else
             echo "g++ not found, skipping warmup"
