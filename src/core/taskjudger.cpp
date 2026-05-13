@@ -315,6 +315,7 @@ auto TaskJudger::traditionalTaskPrepare() -> bool {
 						}
 					}
 				}
+			}
 
 			makeDialogAlert(tr("Compiled Successfully"));
 		}
