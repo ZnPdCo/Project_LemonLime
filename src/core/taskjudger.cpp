@@ -270,13 +270,17 @@ auto TaskJudger::traditionalTaskPrepare() -> bool {
 
 					if (! isJudging) {
 						compilerProcess.kill();
+						compilerProcess.waitForFinished(3000);
 						return false;
 					}
 				}
 
 				if (! flag) {
 					compilerProcess.kill();
+					compilerProcess.waitForFinished(3000);
 					compileState = CompileTimeLimitExceeded;
+					LOG("traditionalTaskPrepare: compile TIMEOUT for "
+					    << contestantName.toStdString());
 				} else if (compilerProcess.exitCode() != 0) {
 					compileState = CompileError;
 					compileMessage =
@@ -320,6 +324,9 @@ auto TaskJudger::traditionalTaskPrepare() -> bool {
 	}
 
 	if (compileState != CompileSuccessfully) {
+		LOG("traditionalTaskPrepare FAILED: compileState=" << static_cast<int>(compileState)
+		                                                    << " contestant=" << contestant->getContestantName().toStdString()
+		                                                    << " task=" << task->getProblemTitle().toStdString());
 		emit compileError(task->getTotalTimeLimit(), static_cast<int>(compileState));
 		return false;
 	}
@@ -330,7 +337,13 @@ auto TaskJudger::traditionalTaskPrepare() -> bool {
 void TaskJudger::judgeIt() {
 	qDebug() << "Start Judging";
 	emit judgingStarted(task->getProblemTitle());
-	if (judge()) {
+	int judgeResult = judge();
+	LOG("judgeIt: contestant=" << contestant->getContestantName().toStdString()
+	                            << " task=" << task->getProblemTitle().toStdString()
+	                            << " judge()=" << judgeResult
+	                            << " compileState=" << static_cast<int>(compileState)
+	                            << " result.size()=" << result.size());
+	if (judgeResult) {
 		contestant->setCheckJudged(taskId, true);
 		contestant->setCompileMessage(taskId, compileMessage);
 		contestant->setCompileState(taskId, compileState);
@@ -354,8 +367,14 @@ int TaskJudger::judge() {
 		return 0;
 
 	if (task->getTaskType() != Task::AnswersOnly)
-		if (! traditionalTaskPrepare())
+		if (! traditionalTaskPrepare()) {
+			LOG("judge: traditionalTaskPrepare FAILED for contestant="
+			    << contestant->getContestantName().toStdString()
+			    << " task=" << task->getProblemTitle().toStdString()
+			    << " compileState=" << static_cast<int>(compileState)
+			    << " result.size()=" << result.size());
 			return 1;
+		}
 
 	for (int i = 0; i < task->getTestCaseList().size(); i++) {
 		timeUsed.append(QList<int>());

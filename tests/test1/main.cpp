@@ -249,6 +249,11 @@ class TestContest : public QObject {
 		QCOMPARE(contestants.size(), 2);
 		for (const Contestant *c : contestants) {
 			for (int taskIdx = 0; taskIdx < contest->getTaskList().size(); taskIdx++) {
+				qDebug() << "DEBUG:" << c->getContestantName()
+				         << "task" << taskIdx << contest->getTaskList()[taskIdx]->getProblemTitle()
+				         << "checkJudged=" << c->getCheckJudged(taskIdx)
+				         << "result.size=" << c->getResult(taskIdx).size()
+				         << "compileState=" << static_cast<int>(c->getCompileState(taskIdx));
 				QVERIFY2(c->getCheckJudged(taskIdx),
 				         qPrintable(QString("Contestant '%1' task %2 was not judged")
 				                        .arg(c->getContestantName())
