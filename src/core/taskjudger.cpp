@@ -279,38 +279,42 @@ auto TaskJudger::traditionalTaskPrepare() -> bool {
 					compilerProcess.kill();
 					compilerProcess.waitForFinished(3000);
 					compileState = CompileTimeLimitExceeded;
-					LOG("traditionalTaskPrepare: compile TIMEOUT for", contestantName);
-				} else if (compilerProcess.exitCode() != 0) {
-					compileState = CompileError;
-					compileMessage =
-					    QString::fromLocal8Bit(compilerProcess.readAllStandardOutput().constData());
+					LOG("traditionalTaskPrepare: compile TIMEOUT for", contestantName,
+					    "elapsed=", timer.elapsed(), "ms");
 				} else {
-					if (i->getCompilerType() == Compiler::Typical) {
-						if (! QDir(QDir::toNativeSeparators(temporaryDir.path()) + QDir::separator() +
-						           contestantName)
-						          .exists(executableFile)) {
-							compileState = InvalidCompiler;
-						} else {
-							compileState = CompileSuccessfully;
-						}
+					LOG("traditionalTaskPrepare: compile done for", contestantName,
+					    "elapsed=", timer.elapsed(), "ms, exitCode=", compilerProcess.exitCode());
+					if (compilerProcess.exitCode() != 0) {
+						compileState = CompileError;
+						compileMessage =
+						    QString::fromLocal8Bit(compilerProcess.readAllStandardOutput().constData());
 					} else {
-						QStringList filters = i->getBytecodeExtensions();
-
-						for (int k = 0; k < filters.size(); k++) {
-							filters[k] = QString("*.") + filters[k];
-						}
-
-						if (QDir(QDir::toNativeSeparators(temporaryDir.path()) + QDir::separator() +
-						         contestantName)
-						        .entryList(filters, QDir::Files)
-						        .empty()) {
-							compileState = InvalidCompiler;
+						if (i->getCompilerType() == Compiler::Typical) {
+							if (! QDir(QDir::toNativeSeparators(temporaryDir.path()) + QDir::separator() +
+							           contestantName)
+							          .exists(executableFile)) {
+								compileState = InvalidCompiler;
+							} else {
+								compileState = CompileSuccessfully;
+							}
 						} else {
-							compileState = CompileSuccessfully;
+							QStringList filters = i->getBytecodeExtensions();
+
+							for (int k = 0; k < filters.size(); k++) {
+								filters[k] = QString("*.") + filters[k];
+							}
+
+							if (QDir(QDir::toNativeSeparators(temporaryDir.path()) + QDir::separator() +
+							         contestantName)
+							        .entryList(filters, QDir::Files)
+							        .empty()) {
+								compileState = InvalidCompiler;
+							} else {
+								compileState = CompileSuccessfully;
+							}
 						}
 					}
 				}
-			}
 
 			makeDialogAlert(tr("Compiled Successfully"));
 		}
