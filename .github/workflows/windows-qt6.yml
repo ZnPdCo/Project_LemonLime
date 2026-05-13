@@ -80,6 +80,12 @@ jobs:
       - name: Deploy Qt for tests
         shell: pwsh
         run: windeployqt tests\test1\test1.exe
+      - name: Exclude temp dirs from Windows Defender
+        shell: pwsh
+        run: |
+          Add-MpPreference -ExclusionPath $env:TEMP
+          Add-MpPreference -ExclusionPath $env:RUNNER_TEMP
+          Add-MpPreference -ExclusionProcess "g++.exe","ld.exe","cc1plus.exe","as.exe"
       - name: Run tests
         shell: bash
         env:
