@@ -35,7 +35,7 @@ static Settings *createSettings(QObject *parent = nullptr) {
 	s->setDefaultTimeLimit(1000);
 	s->setDefaultMemoryLimit(512);
 	s->setDefaultExtraTimeRatio(0.2);
-	s->setCompileTimeLimit(20000);
+	s->setCompileTimeLimit(60000);
 	s->setSpecialJudgeTimeLimit(10000);
 	s->setFileSizeLimit(50);
 	s->setRejudgeTimes(1);
