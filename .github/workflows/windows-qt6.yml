@@ -80,6 +80,16 @@ jobs:
       - name: Deploy Qt for tests
         shell: pwsh
         run: windeployqt tests\test1\test1.exe
+      - name: Warm up g++ (cold-start mitigation)
+        shell: bash
+        run: |
+          gpp=$(which g++ 2>/dev/null || true)
+          if [ -n "$gpp" ]; then
+            echo "int main(){return 0;}" | g++ -x c++ -O2 -o "$TEMP/_warmup.exe" -
+            echo "g++ warmup done: $gpp"
+          else
+            echo "g++ not found, skipping warmup"
+          fi
       - name: Run tests
         shell: bash
         env:

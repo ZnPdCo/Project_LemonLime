@@ -159,20 +159,6 @@ class TestContest : public QObject {
 			}
 		};
 		copyDir(m_contestDir, dst, copyDir);
-
-		// Warm up g++: compile a trivial program to pay the cold-start cost
-		// upfront instead of during the timed judging test.
-		{
-			QString gppPath = QStandardPaths::findExecutable("g++");
-			if (!gppPath.isEmpty()) {
-				QProcess warmup;
-				warmup.start(gppPath, {"-x", "c++", "-O2", "-o",
-				              m_tempWorkDir.path() + "/_warmup.exe", "-"});
-				warmup.write("int main(){return 0;}");
-				warmup.closeWriteChannel();
-				warmup.waitForFinished(60000);
-			}
-		}
 	}
 
 	// ------------------------------------------------------------------
