@@ -13,7 +13,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install clang-format
       - name: "Format Codes"
-        run: shopt -s globstar && clang-format -i src/**/*.cpp src/**/*.h src/**/*.hpp
+        run: find src/ -type f \( -name "*.cpp" -o -name "*.h" -o -name "*.hpp" \) -exec clang-format -i {} +
       - name: Check diff
         run: git diff --exit-code HEAD
       - name: Create Pull Request
