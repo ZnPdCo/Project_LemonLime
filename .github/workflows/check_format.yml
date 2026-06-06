@@ -10,11 +10,11 @@ jobs:
       - uses: actions/checkout@v6
       - name: "Install clang-format"
         run: |
-        wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-        sudo add-apt-repository "deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-21 main"
-        sudo apt-get update
-        sudo apt-get install clang-format-21
-        sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-21 100
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+          sudo add-apt-repository "deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-21 main"
+          sudo apt-get update
+          sudo apt-get install clang-format-21
+          sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-21 100
       - name: "Format Codes"
         run: find src/ -type f \( -name "*.cpp" -o -name "*.h" -o -name "*.hpp" \) -exec clang-format -i {} +
       - name: Check diff
