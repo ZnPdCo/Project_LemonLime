@@ -11,6 +11,7 @@
 
 #include "processrunner_win.h"
 #include "base/LemonLog.hpp"
+#include "core/safefile.h"
 #include "windowsprocessutils.h"
 #include "windowssandbox.h"
 
@@ -191,13 +192,8 @@ ProcessRunnerResult WinProcessRunner::run() {
 
 		res.score = 0;
 		res.result = RunTimeError;
-		QFile file(config.workingDirectory + "_tmperr");
-
-		if (file.open(QFile::ReadOnly)) {
-			QTextStream stream(&file);
-			res.message = stream.readAll().right(1024);
-			file.close();
-		}
+		res.message =
+		    QString::fromLocal8Bit(readContestantFileTail(config.workingDirectory + "_tmperr", 1024));
 
 		res.memoryUsed = res.timeUsed = -1;
 		LOG(config.executableFile, "Unexpectedly exited.");

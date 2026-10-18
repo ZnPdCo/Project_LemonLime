@@ -11,6 +11,7 @@
 
 #include "processrunner_unix.h"
 #include "base/LemonLog.hpp"
+#include "core/safefile.h"
 
 #include <QDebug>
 #include <QElapsedTimer>
@@ -231,11 +232,10 @@ ProcessRunnerResult UnixProcessRunner::run() {
 			res.score = 0;
 			[[fallthrough]];
 		case RS_AC: {
-			QFile file(config.workingDirectory + "_tmperr");
-			if (file.open(QFile::ReadOnly)) {
-				res.message += file.readAll().right(1024);
-				file.close();
-			}
+			// The contestant's stderr file lives in the sandbox-writable working
+			// directory: never follow a symlink and never read it without a bound.
+			res.message +=
+			    QString::fromLocal8Bit(readContestantFileTail(config.workingDirectory + "_tmperr", 1024));
 		} break;
 		case RS_FAIL:
 			res.result = CannotStartProgram;

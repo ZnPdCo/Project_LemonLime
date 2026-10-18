@@ -10,6 +10,7 @@
 #include "base/settings.h"
 #include "core/contest.h"
 #include "core/contestant.h"
+#include "core/safefile.h"
 #include "core/task.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
 
@@ -25,6 +26,12 @@
 #include <QTemporaryDir>
 #include <QtTest>
 #include <atomic>
+#include <cstdio>
+
+#ifdef Q_OS_UNIX
+#include <sys/stat.h>
+#include <unistd.h>
+#endif
 
 class IntegratedTest : public QObject {
 	Q_OBJECT
@@ -235,6 +242,52 @@ class IntegratedTest : public QObject {
 				                        .arg(actual)));
 			}
 		}
+	}
+
+	void contestantFileValidation() {
+		QTemporaryDir directory;
+		QVERIFY(directory.isValid());
+		const QString regular = directory.filePath("regular.out");
+
+		QByteArray contents;
+		for (int i = 0; i < 5000; ++i)
+			contents.append(char('a' + i % 26));
+
+		QFile file(regular);
+		QVERIFY(file.open(QFile::WriteOnly));
+		QCOMPARE(file.write(contents), qint64(contents.size()));
+		file.close();
+
+		QVERIFY(isContestantRegularFile(regular));
+		QCOMPARE(readContestantFileTail(regular, 1024), contents.right(1024));
+		QCOMPARE(readContestantFileTail(regular, 0), QByteArray());
+
+		FILE *stream = openContestantReadOnly(regular);
+		QVERIFY(stream != nullptr);
+		std::fclose(stream);
+
+		QVERIFY(! isContestantRegularFile(directory.filePath("missing.out")));
+		QVERIFY(openContestantReadOnly(directory.filePath("missing.out")) == nullptr);
+
+#ifdef Q_OS_UNIX
+		// A symlink must not be followed: LemonLime would resolve it in its own
+		// mount namespace.
+		const QString link = directory.filePath("link.out");
+		const QByteArray nativeRegular = QFile::encodeName(regular);
+		const QByteArray nativeLink = QFile::encodeName(link);
+		QCOMPARE(::symlink(nativeRegular.constData(), nativeLink.constData()), 0);
+		QVERIFY(! isContestantRegularFile(link));
+		QVERIFY(openContestantReadOnly(link) == nullptr);
+		QCOMPARE(readContestantFileTail(link, 1024), QByteArray());
+
+		// Opening a FIFO must not block the judging thread.
+		const QString fifo = directory.filePath("fifo.out");
+		const QByteArray nativeFifo = QFile::encodeName(fifo);
+		QCOMPARE(::mkfifo(nativeFifo.constData(), 0600), 0);
+		QVERIFY(! isContestantRegularFile(fifo));
+		QVERIFY(openContestantReadOnly(fifo) == nullptr);
+		QCOMPARE(readContestantFileTail(fifo, 1024), QByteArray());
+#endif
 	}
 };
 

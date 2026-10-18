@@ -11,6 +11,7 @@
 #include "LemonType.hpp"
 #include "base/LemonLog.hpp"
 #include "base/settings.h"
+#include "core/safefile.h"
 #include "core/task.h"
 
 #include <QDir>
@@ -107,7 +108,7 @@ class BufferedStreamReader {
 
   public:
 	static const int BUFFER_SIZE = 1 << 18; // 128 KiB
-	explicit BufferedStreamReader(const char *filename) : file(fopen(filename, "r")) {
+	explicit BufferedStreamReader(FILE *stream) : file(stream) {
 		result.reserve(32);
 		// Start with bufPos == bufEnd so the first peekChar() triggers an
 		// fread; avoids a separate "primed?" flag.
@@ -116,6 +117,7 @@ class BufferedStreamReader {
 		lineNumber = 1;
 		isEof = 0;
 	}
+	explicit BufferedStreamReader(const char *filename) : BufferedStreamReader(fopen(filename, "r")) {}
 
 	BufferedStreamReader(const BufferedStreamReader &) = delete;
 	BufferedStreamReader &operator=(const BufferedStreamReader &) = delete;
@@ -216,7 +218,7 @@ auto BufferedStreamReader::nextUntilSpace() -> std::string_view {
 }
 
 void CaseJudger::compareLineByLine(const QString &contestantOutput) {
-	BufferedStreamReader contestantReader(contestantOutput.toLocal8Bit().data());
+	BufferedStreamReader contestantReader(openContestantReadOnly(contestantOutput));
 	BufferedStreamReader standardOutputReader(outputFile.toLocal8Bit().data());
 
 	if (! contestantReader.valid()) {
@@ -274,7 +276,7 @@ void CaseJudger::compareLineByLine(const QString &contestantOutput) {
 }
 
 void CaseJudger::compareIgnoreSpaces(const QString &contestantOutput) {
-	BufferedStreamReader contestantReader(contestantOutput.toLocal8Bit().data());
+	BufferedStreamReader contestantReader(openContestantReadOnly(contestantOutput));
 	BufferedStreamReader standardOutputReader(outputFile.toLocal8Bit().data());
 
 	if (! contestantReader.valid()) {
@@ -340,6 +342,13 @@ void CaseJudger::compareIgnoreSpaces(const QString &contestantOutput) {
 }
 
 void CaseJudger::compareWithDiff(const QString &contestantOutput) {
+	if (! isContestantRegularFile(contestantOutput)) {
+		score = 0;
+		result = FileError;
+		message = tr(R"(Cannot open contestant's output file)");
+		return;
+	}
+
 	QString cmd = diffPath;
 	QStringList cmdArgs =
 	    (QStringList(task->getDiffArguments())
@@ -355,7 +364,7 @@ void CaseJudger::compareWithDiff(const QString &contestantOutput) {
 }
 
 void CaseJudger::compareRealNumbers(const QString &contestantOutput) {
-	FILE *contestantOutputFile = fopen(contestantOutput.toLocal8Bit().data(), "r");
+	FILE *contestantOutputFile = openContestantReadOnly(contestantOutput);
 
 	if (contestantOutputFile == nullptr) {
 		score = 0;
@@ -465,10 +474,10 @@ void CaseJudger::lemonSpecialJudge(const QString &fileName) {
 		return;
 	}
 
-	if (! QFileInfo::exists(fileName)) {
+	if (! isContestantRegularFile(fileName)) {
 		score = 0;
 		result = FileError;
-		message = tr(R"(Cannot find contestant's output file)");
+		message = tr(R"(Cannot open contestant's output file)");
 		return;
 	}
 
@@ -578,10 +587,10 @@ void CaseJudger::testlibSpecialJudge(const QString &fileName) {
 		return;
 	}
 
-	if (! QFileInfo::exists(fileName)) {
+	if (! isContestantRegularFile(fileName)) {
 		score = 0;
 		result = FileError;
-		message = tr(R"(Cannot find contestant's output file)");
+		message = tr(R"(Cannot open contestant's output file)");
 		return;
 	}
 
