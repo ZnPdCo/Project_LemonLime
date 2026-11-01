@@ -31,7 +31,7 @@ namespace {
 		if (fd < 0)
 			return -1;
 
-		struct stat info {};
+		struct stat info{};
 		if (::fstat(fd, &info) != 0 || ! S_ISREG(info.st_mode) || info.st_nlink != 1) {
 			::close(fd);
 			return -1;
@@ -107,7 +107,7 @@ auto readContestantFileTail(const QString &path, qint64 maxBytes) -> QByteArray 
 	if (fd < 0)
 		return result;
 
-	struct stat info {};
+	struct stat info{};
 
 	if (::fstat(fd, &info) == 0) {
 		const qint64 size = static_cast<qint64>(info.st_size);
